@@ -5,6 +5,7 @@ const App = () => {
   const [currentJuiceIndex, setCurrentJuiceIndex] = useState(0);
   const [deg, setDeg] = useState(-45);
   const [fadeIn, setFadeIn] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false); // Add animation state
   const [screenSize, setScreenSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const mainRef = useRef(null);
 
@@ -76,17 +77,30 @@ const App = () => {
   };
 
   const handleJuiceClick = (index) => {
+    // Prevent multiple clicks during animation
+    if (isAnimating || index === currentJuiceIndex) {
+      return;
+    }
+
+    setIsAnimating(true);
+
     if (mainRef.current) {
       mainRef.current.style.background = juiceData[index].backgroundColor;
     }
 
-    const newDeg = deg - 90;
-    setDeg(newDeg);
+    // Calculate the exact rotation needed to show the clicked image
+    const rotationPerImage = 90; // Each image is 90 degrees apart
+    const targetRotation = -45 - (index * rotationPerImage);
+    
+    setDeg(targetRotation);
     setCurrentJuiceIndex(index);
 
     setFadeIn(true);
+    
+    // Reset animation state and fade after animation completes
     setTimeout(() => {
       setFadeIn(false);
+      setIsAnimating(false);
     }, 1000);
   };
 
@@ -159,8 +173,9 @@ const App = () => {
           {juiceData.map((juice, index) => (
             <div
               key={index}
-              className={`juice-wrapper ${index === currentJuiceIndex ? 'active-photo' : ''}`}
+              className={`juice-wrapper ${index === currentJuiceIndex ? 'active-photo' : ''} ${isAnimating ? 'disabled' : ''}`}
               onClick={() => handleJuiceClick(index)}
+              style={{ cursor: isAnimating ? 'not-allowed' : 'pointer' }}
             >
               <img src={juice.juiceImage} alt={`juice${index + 1}`} className="static-juice" />
             </div>
