@@ -76,11 +76,6 @@ const App = () => {
   };
 
   const handleJuiceClick = (index) => {
-    // Exit early if clicking the same juice that's already active
-    if (index === currentJuiceIndex) {
-      return;
-    }
-
     if (mainRef.current) {
       mainRef.current.style.background = juiceData[index].backgroundColor;
     }
